@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>抖音口播工作台</title><link rel="stylesheet" href="./style.css"><script src="./app.js" defer></script><script src="frame.js" defer></script></head>
+<body data-service="extract">
+<aside class="sidebar">
+  <div class="brand"><span class="brand-icon">声</span><div>口播工作台<small>DOUYIN TRANSCRIBER</small></div></div>
+  <div class="nav active"><span>▤</span> 文案提取 <span class="tag">本地版</span></div>
+  <div class="history-heading">最近的任务 <button id="refresh-history" class="icon-button" aria-label="刷新历史">↻</button></div>
+  <div id="history" class="history"><p class="muted">你的提取任务会保存在这里</p></div>
+  <div class="sidebar-bottom"><span class="green-dot"></span> 在你的电脑上运行<p>口播识别在本机完成<br>文案校验通过千问 API</p></div>
+</aside>
+<main>
+  <header><span>工作空间 <span class="slash">/</span> 文案提取</span><a href="#proofread" class="button" >文案校验 ↗</a><button id="help-button" class="text-button">使用说明 ↗</button></header>
+  <section class="hero"><div><div class="eyebrow">从视频，到文字</div><h1>把一个主页，变成文案库<span>。</span></h1><p>粘贴抖音博主主页，自动收集视频、识别口播，逐条保存。</p></div><div class="hero-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></section>
+  <section class="card input-card">
+    <form id="start-form">
+      <label class="field-label" for="link">抖音博主主页 <span>支持主页链接、短链接和整段分享文字</span></label>
+      <div class="input-row"><div class="link-input"><span aria-hidden="true">↗</span><input id="link" placeholder="粘贴 https://v.douyin.com/… 或博主主页分享文字" autocomplete="off" required><button id="paste" type="button">粘贴</button></div><button id="start" class="primary" type="submit">开始提取 <span>→</span></button></div>
+      <div class="options"><label for="limit">提取数量 <input id="limit" type="number" min="0" max="100000" value="0"></label><span class="muted">0 表示全部，首次可先试 3 条</span><div class="option-spacer"></div><label class="check-label"><input id="keep-video" type="checkbox"> 同时保留视频</label><details><summary>识别设置</summary><div class="settings"><label for="model">识别模型</label><select id="model"><option value="small" selected>Small · 均衡</option><option value="base">Base · 较快</option><option value="medium">Medium · 更大模型</option></select><p>中文口播，CPU INT8。较大模型更慢；首次使用可能需要下载。</p></div></details></div>
+    </form>
+    <div class="storage"><span>▣</span><div><span id="storage-text">正在检查保存位置…</span><small id="machine">正在检查识别环境…</small></div><span id="disk-status" class="pill">检测中</span></div>
+  </section>
+  <div id="alert" role="alert" hidden></div>
+  <section class="card task-card">
+    <div class="task-heading"><div><div class="eyebrow">提取任务</div><h2 id="task-title">准备好，开始第一次提取</h2></div><span id="status-pill" class="pill">等待开始</span></div>
+    <div id="task-content" hidden>
+      <div class="metrics"><div><strong id="total">0</strong><span>已收集作品</span></div><div><strong id="done">0</strong><span>已完成</span></div><div><strong id="failed">0</strong><span>失败</span></div><div><strong id="pending">0</strong><span>待处理 / 处理中</span></div></div>
+      <div class="progress-line"><span id="message" aria-live="polite"></span><span id="progress-label"></span></div><progress id="progress" max="100" value="0" aria-label="任务进度"></progress>
+      <div id="warning" class="warning" hidden></div>
+      <div class="toolbar"><div id="filter-group"><button data-filter="all" class="filter selected">全部</button><button data-filter="done" class="filter">已完成</button><button data-filter="failed" class="filter">失败</button></div><div class="actions"><button id="finish-collection" hidden>处理已收集</button><button id="pause" hidden>暂停</button><button id="stop" hidden>停止</button><button id="retry" hidden>重试未完成</button><button id="open-folder">打开文件夹</button><a id="export" class="button">导出文案 ↓</a></div></div>
+      <div class="table-wrap"><table><thead><tr><th class="num">序号</th><th>视频标题</th><th class="duration">时长</th><th class="status-col">处理状态</th><th class="row-actions">操作</th></tr></thead><tbody id="rows"></tbody></table><div id="no-rows" hidden>暂无符合条件的作品</div></div>
+      <div class="table-footer">文案完成一条，保存一条。点击「查看」可预览、复制和下载。<span id="collection-note"></span></div>
+    </div>
+    <div id="empty-state"><div class="empty-icon">▤</div><h3>你的下一份文案，从一个链接开始</h3><p>输入博主主页后，作品和处理进度会显示在这里。</p><div class="steps"><span><b>1</b> 粘贴主页</span><i>→</i><span><b>2</b> 自动识别</span><i>→</i><span><b>3</b> 导出文案</span></div></div>
+  </section>
+  <footer><span>TXT 文案 · SRT 字幕 · CSV 清单</span><span>首次采集可能需要在弹出的 Chrome 中登录抖音</span></footer>
+</main>
+<dialog id="preview"><div class="dialog-head"><div><div class="eyebrow">口播文案</div><h2 id="preview-title"></h2></div><button id="close-preview" class="icon-button" aria-label="关闭预览">×</button></div><p id="preview-author" class="muted"></p><pre id="preview-text"></pre><div class="dialog-actions"><a id="original" target="_blank" rel="noreferrer">查看原视频 ↗</a><div><button id="copy-text">复制文案</button><a id="download-txt" class="button">下载 TXT</a><a id="download-srt" class="button primary">下载 SRT</a></div></div></dialog>
+<dialog id="help"><div class="dialog-head"><h2>使用说明</h2><button id="close-help" class="icon-button" aria-label="关闭说明">×</button></div><ol><li>复制抖音博主主页的分享链接，整段分享文字也可以。</li><li>输入提取数量。0 表示尝试收集全部，首次建议先试 3 条。</li><li>点击开始后，工具会打开独立 Chrome。如抖音要求登录或验证，请手动完成。之后工具会复用该浏览器登录状态。</li><li>每条作品提取后立即保存 TXT 和 SRT。勾选「同时保留视频」会额外保存 MP4。</li><li>可随时暂停或停止。暂停在当前识别分段结束后生效；重试会跳过已完成作品。</li></ol><p>采集范围是当前登录状态下主页可加载的作品。遇到加载中断会显示「采集不完整」。自动识别可能出现错字，引用前请对照原视频核对。</p><p>移动硬盘断开时会停止保存；重新接入同名硬盘后可重试。模型和浏览器登录配置保存在本机，视频和文案保存在设置的磁盘。</p></dialog>
+<div id="toast" role="status" hidden></div>
+</body></html>
